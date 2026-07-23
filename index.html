@@ -91,6 +91,7 @@ h1{
 
 <div id="start">
   <h1>かじあかねチャレンジ</h1>
+
   <button style="position:static" onclick="startGame()">
     🚀 GAME START
   </button>
@@ -99,15 +100,18 @@ h1{
 <!-- ゲーム画面 -->
 
 <div id="game">
+
   <div id="progress"></div>
-  <div id="msg">順番:か→じ→あ→か→ね</div>
+
+  <div id="msg">
+    順番:か→じ→あ→か→ね
+  </div>
+
 </div>
 
 <!-- リザルト画面 -->
 
 <div id="win" style="display:none;">
-
-  <!-- 成功・失敗で内容を切り替える -->
 
   <h1 id="resultTitle"></h1>
 
@@ -121,23 +125,27 @@ h1{
 
 <script>
 
+// 正解の順番
 const seq=["か","じ","あ","か","ね"];
 
 let idx=0;
 let start;
+
 let bts=[];
 
 // 実際に押した順番
 let pressed=[];
 
+// 正解だったかどうか
+let isCorrect=true;
 
-// ボタンを作成
+
+// ボタン作成
 function mk(ch){
 
   let b=document.createElement("button");
 
-  // ランダムな文字パターンは使用せず
-  // 必ず「か」「じ」「あ」「か」「ね」を表示
+  // ボタンには必ずこの5文字だけを表示
   b.dataset.k=ch;
   b.textContent=ch;
 
@@ -146,8 +154,15 @@ function mk(ch){
   b.y=Math.random()*(innerHeight-100)+80;
 
   // 移動速度を元の90%にする
-  b.dx=(Math.random()*3.2+1.6)*0.9*(Math.random()<.5?-1:1);
-  b.dy=(Math.random()*3.2+1.6)*0.9*(Math.random()<.5?-1:1);
+  b.dx=
+    (Math.random()*3.2+1.6)
+    *0.9
+    *(Math.random()<.5?-1:1);
+
+  b.dy=
+    (Math.random()*3.2+1.6)
+    *0.9
+    *(Math.random()<.5?-1:1);
 
   // ボタンそのものをタップ判定
   b.onclick=()=>{
@@ -166,10 +181,15 @@ function startGame(){
   start=Date.now();
 
   idx=0;
+
   pressed=[];
+
   bts=[];
 
+  isCorrect=true;
+
   startDiv=document.getElementById("start");
+
   startDiv.style.display="none";
 
   document.getElementById("game").style.display="block";
@@ -188,19 +208,27 @@ function loop(){
 
     if(!b.isConnected)return;
 
+    // 移動
     b.x+=b.dx;
     b.y+=b.dy;
 
     // 左右の端で反射
-    if(b.x<0||b.x>innerWidth-90){
+    if(
+      b.x<0||
+      b.x>innerWidth-90
+    ){
       b.dx*=-1;
     }
 
     // 上下の端で反射
-    if(b.y<70||b.y>innerHeight-60){
+    if(
+      b.y<70||
+      b.y>innerHeight-60
+    ){
       b.dy*=-1;
     }
 
+    // 位置を更新
     b.style.left=b.x+"px";
     b.style.top=b.y+"px";
 
@@ -216,47 +244,60 @@ function click(b){
   // 押した文字を記録
   pressed.push(b.dataset.k);
 
-  // 正しい順番かチェック
-  if(b.dataset.k===seq[idx]){
+  // 正しい順番か確認
+  if(
+    b.dataset.k!==seq[idx]
+  ){
 
-    b.remove();
-
-    idx++;
-
-    progress.textContent=seq.slice(0,idx).join(" ");
-
-    // 全部正解
-    if(idx===seq.length){
-
-      showResult(true);
-    }
-
-  }else{
-
-    // 間違えても失敗扱いにはせず
-    // そのままリザルト画面へ
-    showResult(false);
+    // 一度でも間違えたら失敗
+    isCorrect=false;
 
   }
+
+  // 次の正解位置へ進める
+  idx++;
+
+  // 進行状況を表示
+  progress.textContent=
+    pressed.join(" ");
+
+  // 押したボタンを削除
+  b.remove();
+
+
+  // 5文字すべて押した場合
+  if(idx===seq.length){
+
+    showResult();
+
+  }
+
 }
 
 
-// リザルト画面
-function showResult(success){
+// リザルト表示
+function showResult(){
 
   // ゲーム画面を非表示
   game.style.display="none";
 
+
   // 残っているボタンを削除
   bts.forEach(b=>{
+
     if(b.isConnected){
+
       b.remove();
+
     }
+
   });
+
 
   // クリアタイム
   const clearTime=
     ((Date.now()-start)/1000).toFixed(2);
+
 
   const resultTitle=
     document.getElementById("resultTitle");
@@ -270,27 +311,35 @@ function showResult(success){
   const resultMessage=
     document.getElementById("resultMessage");
 
-  if(success){
 
-    // =====================
-    // 成功時
-    // =====================
+  // =========================
+  // 成功
+  // =========================
+
+  if(isCorrect){
 
     win.style.background=
       "linear-gradient(45deg,#ffd1ec,#d8f3ff)";
+
 
     resultTitle.textContent=
       "🎉🎀 CONGRATULATIONS 🎀🎉";
 
     resultTitle.style.fontSize="42px";
+
     resultTitle.style.color="#ff4f9a";
-    resultTitle.style.animation="pop .8s infinite";
+
+    resultTitle.style.animation=
+      "pop .8s infinite";
+
 
     resultName.textContent=
       "🌸 かじあかね さん 🌸";
 
     resultName.style.fontSize="40px";
+
     resultName.style.color="#ff4fa3";
+
 
     time.textContent=
       "🏆 Clear Time : "+
@@ -298,60 +347,80 @@ function showResult(success){
       " sec";
 
     time.style.fontSize="36px";
+
     time.style.color="#ff9800";
-    time.style.textShadow="0 0 12px #fff";
+
+    time.style.textShadow=
+      "0 0 12px #fff";
+
 
     resultMessage.textContent=
       "💖 AMAZING!! 💖";
 
     resultMessage.style.fontSize="32px";
+
     resultMessage.style.color="#ff4f9a";
 
-  }else{
+  }
 
-    // =====================
-    // 間違えた場合
-    // =====================
+
+  // =========================
+  // 間違い
+  // =========================
+
+  else{
 
     // 暗い青系の背景
     win.style.background=
       "linear-gradient(135deg,#07152e,#102a4c,#07152e)";
 
+
     resultTitle.textContent=
       "WRONG NAME...";
 
     resultTitle.style.fontSize="42px";
-    resultTitle.style.color="#8fb8e8";
-    resultTitle.style.animation="none";
 
-    // 押した順番を表示
+    resultTitle.style.color="#8fb8e8";
+
+    resultTitle.style.animation=
+      "none";
+
+
+    // 実際に押した5文字を表示
     resultName.textContent=
       "「"+
       pressed.join("→")+
       "」";
 
     resultName.style.fontSize="40px";
+
     resultName.style.color="#ffffff";
 
-    // クリアタイムではなく
-    // 押した順番を表示した結果画面
+
+    // 正しい名前
     time.textContent=
       "正しい名前は「か→じ→あ→か→ね」";
 
     time.style.fontSize="20px";
+
     time.style.color="#8fb8e8";
+
     time.style.textShadow="none";
+
 
     resultMessage.textContent=
       "😢 TRY AGAIN...";
 
     resultMessage.style.fontSize="32px";
+
     resultMessage.style.color="#6d91bd";
 
   }
 
+
   // リザルト画面を表示
   win.style.display="flex";
+
 }
 
 </script>
