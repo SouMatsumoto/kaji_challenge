@@ -1,6 +1,234 @@
-<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>かじあかねチャレンジ</title><style>body{margin:0;background:linear-gradient(#ffdff2,#e6f7ff);color:#ff4f9a;font-family:sans-serif;overflow:hidden;max-width:430px;margin:0 auto;height:100vh}#start,#win{position:fixed;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;background:linear-gradient(#ffdff2,#e6f7ff)}#game{display:none}button{font-size:28px;padding:14px 18px;border-radius:12px;border:none;position:absolute;background:#fff7b8;border:3px solid #ff9ecf;box-shadow:0 4px 12px rgba(255,158,207,.5)}#progress{position:fixed;top:10px;left:10px;font-size:32px}#msg{position:fixed;top:55px;left:10px}h1{font-size:56px}@keyframes pop{50%{transform:scale(1.08)}} </style></head><body><div id="start"><h1>かじあかねチャレンジ</h1><button style="position:static" onclick="startGame()">🚀 GAME START</button></div><div id="game"><div id="progress"></div><div id="msg">順番:か→じ→あ→か→ね</div></div><div id="win" style="display:none;background:linear-gradient(45deg,#ffd1ec,#d8f3ff)">
-<h1 style="font-size:64px;animation:pop .8s infinite">🎉🎀 CONGRATULATIONS 🎀🎉</h1>
-<h1 style="font-size:60px;color:#ff4fa3">🌸 かじあかね さん 🌸</h1>
-<h1 id="time" style="font-size:54px;color:#ff9800;text-shadow:0 0 12px #fff"></h1>
-<h2 style="font-size:46px">💖 AMAZING!! 💖</h2></div><script>
-const seq=["か","じ","あ","か","ね"],vars={"か":["か","カ","Ka","KA","火"],"じ":["じ","ジ","Ji","JI","字"],"あ":["あ","ア","A","亜"],"ね":["ね","ネ","NE","音"]};let idx=0,start,bts=[];function alias(c){let a=vars[c]||[c];return a[Math.floor(Math.random()*a.length)]}function mk(ch){let b=document.createElement("button");b.dataset.k=ch;b.textContent=alias(ch);b.x=Math.random()*(innerWidth-100);b.y=Math.random()*(innerHeight-100)+80;b.dx=(Math.random()*3.2+1.6)*(Math.random()<.5?-1:1);b.dy=(Math.random()*3.2+1.6)*(Math.random()<.5?-1:1);b.onclick=()=>click(b);document.body.appendChild(b);bts.push(b);}function startGame(){start=Date.now();startDiv=document.getElementById("start");startDiv.style.display="none";document.getElementById("game").style.display="block";["か","じ","あ","か","ね"].forEach(mk);requestAnimationFrame(loop);}function loop(){bts.forEach(b=>{if(!b.isConnected)return;b.x+=b.dx;b.y+=b.dy;if(b.x<0||b.x>innerWidth-90)b.dx*=-1;if(b.y<70||b.y>innerHeight-60)b.dy*=-1;b.style.left=b.x+"px";b.style.top=b.y+"px";});requestAnimationFrame(loop);}function click(b){if(b.dataset.k===seq[idx]){b.remove();idx++;progress.textContent=seq.slice(0,idx).join(" ");if(idx===seq.length){game.style.display="none";win.style.display="flex";time.textContent="🏆 Clear Time : "+((Date.now()-start)/1000).toFixed(2)+" sec";}}else{alert("❌ 順番が違います！");location.reload();}}</script></body></html>
+<!DOCTYPE html>
+
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>かじあかねチャレンジ</title>
+
+<style>
+body{
+  margin:0;
+  background:linear-gradient(#ffdff2,#e6f7ff);
+  color:#ff4f9a;
+  font-family:sans-serif;
+  overflow:hidden;
+  max-width:430px;
+  margin:0 auto;
+  height:100vh;
+}
+
+#start,#win{
+  position:fixed;
+  inset:0;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  background:linear-gradient(#ffdff2,#e6f7ff);
+}
+
+#game{
+  display:none;
+}
+
+button{
+  font-size:22px;
+  padding:11px 14px;
+  border-radius:12px;
+  border:none;
+  position:absolute;
+  background:#fff7b8;
+  border:3px solid #ff9ecf;
+  box-shadow:0 4px 12px rgba(255,158,207,.5);
+}
+
+#progress{
+  position:fixed;
+  top:10px;
+  left:10px;
+  font-size:24px;
+}
+
+#msg{
+  position:fixed;
+  top:48px;
+  left:10px;
+  font-size:16px;
+}
+
+h1{
+  font-size:40px;
+  text-align:center;
+}
+
+@keyframes pop{
+  50%{
+    transform:scale(1.08);
+  }
+}
+
+/* スマホ向け調整 */
+@media(max-width:600px){
+  #start h1{
+    font-size:32px;
+  }
+
+  #start button{
+    font-size:20px;
+    padding:10px 13px;
+  }
+}
+</style>
+
+</head>
+
+<body>
+
+<div id="start">
+  <h1>かじあかねチャレンジ</h1>
+  <button style="position:static" onclick="startGame()">🚀 GAME START</button>
+</div>
+
+<div id="game">
+  <div id="progress"></div>
+  <div id="msg">順番:か→じ→あ→か→ね</div>
+</div>
+
+<div id="win" style="display:none;background:linear-gradient(45deg,#ffd1ec,#d8f3ff)">
+  <h1 style="font-size:42px;animation:pop .8s infinite">
+    🎉🎀 CONGRATULATIONS 🎀🎉
+  </h1>
+
+  <h1 style="font-size:40px;color:#ff4fa3">
+    🌸 かじあかね さん 🌸
+  </h1>
+
+  <h1 id="time" style="font-size:36px;color:#ff9800;text-shadow:0 0 12px #fff"></h1>
+
+  <h2 style="font-size:32px">
+    💖 AMAZING!! 💖
+  </h2>
+</div>
+
+<script>
+const seq=["か","じ","あ","か","ね"];
+
+const vars={
+  "か":["か","カ","Ka","KA","火"],
+  "じ":["じ","ジ","Ji","JI","字"],
+  "あ":["あ","ア","A","亜"],
+  "ね":["ね","ネ","NE","音"]
+};
+
+let idx=0;
+let start;
+let bts=[];
+
+function alias(c){
+  let a=vars[c]||[c];
+  return a[Math.floor(Math.random()*a.length)];
+}
+
+function mk(ch){
+  let b=document.createElement("button");
+
+  b.dataset.k=ch;
+  b.textContent=alias(ch);
+
+  /* ボタンの表示サイズを取得 */
+  b.x=Math.random()*(innerWidth-100);
+  b.y=Math.random()*(innerHeight-100)+80;
+
+  /* 移動速度を元の90%に変更 */
+  b.dx=(Math.random()*3.2+1.6)*0.9*(Math.random()<.5?-1:1);
+  b.dy=(Math.random()*3.2+1.6)*0.9*(Math.random()<.5?-1:1);
+
+  /*
+    見た目のボタンとは別に、
+    透明な120%サイズのタップ判定エリアを作成
+  */
+  let hit=document.createElement("div");
+
+  hit.style.position="absolute";
+  hit.style.pointerEvents="auto";
+  hit.style.width="120%";
+  hit.style.height="120%";
+  hit.style.left="-10%";
+  hit.style.top="-10%";
+  hit.style.cursor="pointer";
+
+  hit.onclick=()=>{
+    click(b);
+  };
+
+  b.appendChild(hit);
+
+  b.onclick=()=>{
+    click(b);
+  };
+
+  document.body.appendChild(b);
+
+  bts.push(b);
+}
+
+function startGame(){
+  start=Date.now();
+
+  startDiv=document.getElementById("start");
+  startDiv.style.display="none";
+
+  document.getElementById("game").style.display="block";
+
+  ["か","じ","あ","か","ね"].forEach(mk);
+
+  requestAnimationFrame(loop);
+}
+
+function loop(){
+  bts.forEach(b=>{
+    if(!b.isConnected)return;
+
+    b.x+=b.dx;
+    b.y+=b.dy;
+
+    if(b.x<0||b.x>innerWidth-90)
+      b.dx*=-1;
+
+    if(b.y<70||b.y>innerHeight-60)
+      b.dy*=-1;
+
+    b.style.left=b.x+"px";
+    b.style.top=b.y+"px";
+  });
+
+  requestAnimationFrame(loop);
+}
+
+function click(b){
+  if(b.dataset.k===seq[idx]){
+    b.remove();
+
+    idx++;
+
+    progress.textContent=seq.slice(0,idx).join(" ");
+
+    if(idx===seq.length){
+      game.style.display="none";
+      win.style.display="flex";
+
+      time.textContent=
+        "🏆 Clear Time : "+
+        ((Date.now()-start)/1000).toFixed(2)+
+        " sec";
+    }
+  }else{
+    alert("❌ 順番が違います！");
+    location.reload();
+  }
+}
+</script>
+
+</body>
+</html>
