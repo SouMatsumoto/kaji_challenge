@@ -41,6 +41,7 @@ button{
   background:#fff7b8;
   border:3px solid #ff9ecf;
   box-shadow:0 4px 12px rgba(255,158,207,.5);
+  z-index:10;
 }
 
 #progress{
@@ -48,14 +49,65 @@ button{
   top:10px;
   left:10px;
   font-size:24px;
+  z-index:10;
 }
 
 h1{
   font-size:40px;
   text-align:center;
+  position:relative;
+  z-index:5;
 }
 
-/* リザルト画面のRESTARTボタン */
+h2{
+  position:relative;
+  z-index:5;
+}
+
+
+/* =========================
+   紙吹雪
+========================= */
+
+#confettiContainer{
+  position:fixed;
+  inset:0;
+  overflow:hidden;
+  pointer-events:none;
+  z-index:1;
+  display:none;
+}
+
+.confetti{
+  position:absolute;
+  top:-20px;
+  width:10px;
+  height:16px;
+  opacity:.9;
+  animation:confettiFall linear infinite;
+}
+
+@keyframes confettiFall{
+
+  0%{
+    transform:
+      translateY(-30px)
+      rotate(0deg);
+  }
+
+  100%{
+    transform:
+      translateY(110vh)
+      rotate(720deg);
+  }
+
+}
+
+
+/* =========================
+   RESTARTボタン
+========================= */
+
 #restartButton{
   position:absolute;
   bottom:40px;
@@ -63,15 +115,23 @@ h1{
   transform:translateX(-50%);
   font-size:20px;
   padding:10px 13px;
+  z-index:20;
 }
 
+
 @keyframes pop{
+
   50%{
     transform:scale(1.08);
   }
+
 }
 
-/* スマホ向け調整 */
+
+/* =========================
+   スマホ向け調整
+========================= */
+
 @media(max-width:600px){
 
   #start h1{
@@ -96,19 +156,33 @@ h1{
 
 <body>
 
-<!-- スタート画面 -->
+<!-- =========================
+     スタート画面
+========================= -->
 
 <div id="start">
 
-  <h1>かじあかねチャレンジ</h1>
+  <h1>
+    かじあかねチャレンジ
+  </h1>
 
-  <button style="position:static" onclick="startGame()">
-    🚀 GAME START
+<button
+style="position:static"
+onclick="startGame()"
+
+>
+
+```
+🚀 GAME START
+```
+
   </button>
 
 </div>
 
-<!-- ゲーム画面 -->
+<!-- =========================
+     ゲーム画面
+========================= -->
 
 <div id="game">
 
@@ -116,9 +190,15 @@ h1{
 
 </div>
 
-<!-- リザルト画面 -->
+<!-- =========================
+     リザルト画面
+========================= -->
 
 <div id="win" style="display:none;">
+
+  <!-- 紙吹雪 -->
+
+  <div id="confettiContainer"></div>
 
   <h1 id="resultTitle"></h1>
 
@@ -130,23 +210,39 @@ h1{
 
   <!-- RESTARTボタン -->
 
-  <button id="restartButton" onclick="restartGame()">
-    🔄 RESTART
+<button
+id="restartButton"
+onclick="restartGame()"
+
+>
+
+```
+🔄 RESTART
+```
+
   </button>
 
 </div>
 
 <script>
 
+
 // =========================
 // ゲーム設定
 // =========================
 
 // 正解の順番
-const seq=["か","じ","あ","か","ね"];
+const seq=[
+  "か",
+  "じ",
+  "あ",
+  "か",
+  "ね"
+];
+
 
 // ボタンの移動速度
-// 元の速度の90%
+// 元の90%
 const SPEED_RATE=0.9;
 
 
@@ -160,14 +256,21 @@ let start;
 
 let bts=[];
 
+
 // 実際に押した順番
 let pressed=[];
+
 
 // 正解だったかどうか
 let isCorrect=true;
 
+
 // ゲーム中かどうか
 let isPlaying=false;
+
+
+// 紙吹雪の生成タイマー
+let confettiInterval=null;
 
 
 // =========================
@@ -178,21 +281,31 @@ function mk(ch){
 
   let b=document.createElement("button");
 
+
   // ボタンには
-  // 「か」「じ」「あ」「か」「ね」だけを表示
+  // 「か」「じ」「あ」「か」「ね」
+  // だけを表示
+
   b.dataset.k=ch;
+
   b.textContent=ch;
 
+
   // 初期位置
+
   b.x=
-    Math.random()*(innerWidth-100);
+    Math.random()*
+    (innerWidth-100);
 
   b.y=
-    Math.random()*(innerHeight-100)+80;
+    Math.random()*
+    (innerHeight-100)
+    +80;
 
 
   // 移動速度
   // 元の90%に固定
+
   b.dx=
     (Math.random()*3.2+1.6)
     *SPEED_RATE
@@ -205,6 +318,7 @@ function mk(ch){
 
 
   // ボタンそのものをタップ判定
+
   b.onclick=()=>{
     click(b);
   };
@@ -223,17 +337,26 @@ function mk(ch){
 
 function startGame(){
 
+
+  // 紙吹雪を停止
+  stopConfetti();
+
+
   // もし残っているボタンがあれば削除
+
   bts.forEach(b=>{
 
     if(b.isConnected){
+
       b.remove();
+
     }
 
   });
 
 
   // ゲーム状態を初期化
+
   idx=0;
 
   pressed=[];
@@ -245,27 +368,42 @@ function startGame(){
   isPlaying=true;
 
 
-  // 開始時間を記録
+  // 開始時間
+
   start=Date.now();
 
 
   // スタート画面を非表示
-  document.getElementById("start").style.display="none";
+
+  document
+    .getElementById("start")
+    .style.display="none";
 
 
   // リザルト画面を非表示
-  document.getElementById("win").style.display="none";
+
+  document
+    .getElementById("win")
+    .style.display="none";
 
 
   // ゲーム画面を表示
-  document.getElementById("game").style.display="block";
+
+  document
+    .getElementById("game")
+    .style.display="block";
 
 
   // 進行状況をリセット
-  document.getElementById("progress").textContent="";
+
+  document
+    .getElementById("progress")
+    .textContent="";
 
 
-  // 「か」「じ」「あ」「か」「ね」を生成
+  // 「か」「じ」「あ」「か」「ね」
+  // を生成
+
   seq.forEach(mk);
 
 }
@@ -274,29 +412,34 @@ function startGame(){
 // =========================
 // ボタンを動かす
 // =========================
-//
-// 重要：
-// requestAnimationFrameはここでは呼ばない。
-// HTMLの最後で1回だけloopを開始する。
-// これによりRESTARTしても速度が加速しない。
 
 function loop(){
 
+
   // ゲーム中のみボタンを動かす
+
   if(isPlaying){
+
 
     bts.forEach(b=>{
 
-      if(!b.isConnected)return;
+
+      if(!b.isConnected){
+
+        return;
+
+      }
 
 
       // 移動
+
       b.x+=b.dx;
 
       b.y+=b.dy;
 
 
       // 左右の端で反射
+
       if(
         b.x<0||
         b.x>innerWidth-90
@@ -308,6 +451,7 @@ function loop(){
 
 
       // 上下の端で反射
+
       if(
         b.y<70||
         b.y>innerHeight-60
@@ -319,16 +463,21 @@ function loop(){
 
 
       // 位置を更新
-      b.style.left=b.x+"px";
 
-      b.style.top=b.y+"px";
+      b.style.left=
+        b.x+"px";
+
+      b.style.top=
+        b.y+"px";
+
 
     });
 
   }
 
 
-  // 常に1本だけループを継続
+  // ループ継続
+
   requestAnimationFrame(loop);
 
 }
@@ -340,40 +489,59 @@ function loop(){
 
 function click(b){
 
+
   // ゲーム中でなければ何もしない
-  if(!isPlaying)return;
+
+  if(!isPlaying){
+
+    return;
+
+  }
 
 
   // 押した文字を記録
-  pressed.push(b.dataset.k);
+
+  pressed.push(
+    b.dataset.k
+  );
 
 
   // 正しい順番か確認
+
   if(
     b.dataset.k!==seq[idx]
   ){
 
     // 一度でも間違えたら不正解
+
     isCorrect=false;
 
   }
 
 
   // 次の判定位置へ進める
+
   idx++;
 
 
   // 押した順番を表示
-  progress.textContent=
-    pressed.join(" ");
+
+  document
+    .getElementById("progress")
+    .textContent=
+      pressed.join(" ");
 
 
   // 押したボタンを削除
+
   b.remove();
 
 
   // 5文字すべて押した場合
-  if(idx===seq.length){
+
+  if(
+    idx===seq.length
+  ){
 
     showResult();
 
@@ -388,15 +556,21 @@ function click(b){
 
 function showResult(){
 
+
   // ゲームを停止
+
   isPlaying=false;
 
 
   // ゲーム画面を非表示
-  document.getElementById("game").style.display="none";
+
+  document
+    .getElementById("game")
+    .style.display="none";
 
 
   // 残っているボタンを削除
+
   bts.forEach(b=>{
 
     if(b.isConnected){
@@ -409,39 +583,64 @@ function showResult(){
 
 
   // クリアタイム
-  const clearTime=
-    ((Date.now()-start)/1000).toFixed(2);
 
+  const clearTime=
+    (
+      (Date.now()-start)
+      /1000
+    ).toFixed(2);
+
+
+  // 各要素
 
   const resultTitle=
-    document.getElementById("resultTitle");
+    document
+      .getElementById(
+        "resultTitle"
+      );
 
   const resultName=
-    document.getElementById("resultName");
+    document
+      .getElementById(
+        "resultName"
+      );
 
   const time=
-    document.getElementById("time");
+    document
+      .getElementById(
+        "time"
+      );
 
   const resultMessage=
-    document.getElementById("resultMessage");
+    document
+      .getElementById(
+        "resultMessage"
+      );
 
 
   // =========================
-  // 成功・間違い共通
+  // 共通
   // =========================
+
 
   // ピンク系背景
-  document.getElementById("win").style.background=
-    "linear-gradient(45deg,#ffd1ec,#d8f3ff)";
+
+  document
+    .getElementById("win")
+    .style.background=
+      "linear-gradient(45deg,#ffd1ec,#d8f3ff)";
 
 
   // タイトル
+
   resultTitle.textContent=
     "🎉🎀 HAPPY BIRTHDAY!! 🎀🎉";
 
-  resultTitle.style.fontSize="42px";
+  resultTitle.style.fontSize=
+    "42px";
 
-  resultTitle.style.color="#ff4f9a";
+  resultTitle.style.color=
+    "#ff4f9a";
 
   resultTitle.style.animation=
     "pop .8s infinite";
@@ -453,36 +652,51 @@ function showResult(){
 
   if(isCorrect){
 
+
     // 正しい名前
+
     resultName.textContent=
       "🌸 かじあかね さん 🌸";
 
-    resultName.style.fontSize="40px";
+    resultName.style.fontSize=
+      "40px";
 
-    resultName.style.color="#ff4fa3";
+    resultName.style.color=
+      "#ff4fa3";
 
 
     // クリアタイム
+
     time.textContent=
       "🏆 Clear Time : "+
       clearTime+
       " sec";
 
-    time.style.fontSize="36px";
+    time.style.fontSize=
+      "36px";
 
-    time.style.color="#ff9800";
+    time.style.color=
+      "#ff9800";
 
     time.style.textShadow=
       "0 0 12px #fff";
 
 
     // 成功メッセージ
+
     resultMessage.textContent=
       "💖 AMAZING!! 💖";
 
-    resultMessage.style.fontSize="32px";
+    resultMessage.style.fontSize=
+      "32px";
 
-    resultMessage.style.color="#ff4f9a";
+    resultMessage.style.color=
+      "#ff4f9a";
+
+
+    // 紙吹雪開始
+
+    startConfetti();
 
   }
 
@@ -493,43 +707,253 @@ function showResult(){
 
   else{
 
-    // 押した5文字をつなげて名前として表示
-    // 例：
-    // あ→ね→じ→か→か
-    // ↓
-    // あねじかか さん
+
+    // 押した5文字をつなげる
+
     resultName.textContent=
       pressed.join("")+
       " さん";
 
-    resultName.style.fontSize="40px";
+    resultName.style.fontSize=
+      "40px";
 
-    resultName.style.color="#ff4fa3";
+    resultName.style.color=
+      "#ff4fa3";
 
 
     // クリアタイムは表示しない
+
     time.textContent="";
 
-    time.style.fontSize="20px";
+    time.style.fontSize=
+      "20px";
 
-    time.style.color="#ff9800";
+    time.style.color=
+      "#ff9800";
 
-    time.style.textShadow="none";
+    time.style.textShadow=
+      "none";
 
 
-    // 面白い感じのメッセージ
+    // 面白いメッセージ
+
     resultMessage.textContent=
-      "...おろ??";
+      "...??";
 
-    resultMessage.style.fontSize="40px";
+    resultMessage.style.fontSize=
+      "40px";
 
-    resultMessage.style.color="#ff4f9a";
+    resultMessage.style.color=
+      "#ff4f9a";
+
+
+    // 間違いの場合は
+    // 紙吹雪を表示しない
+
+    stopConfetti();
 
   }
 
 
   // リザルト画面を表示
-  document.getElementById("win").style.display="flex";
+
+  document
+    .getElementById("win")
+    .style.display=
+      "flex";
+
+}
+
+
+// =========================
+// 紙吹雪を1つ生成
+// =========================
+
+function createConfetti(){
+
+
+  const container=
+    document
+      .getElementById(
+        "confettiContainer"
+      );
+
+
+  const confetti=
+    document.createElement(
+      "div"
+    );
+
+
+  confetti.className=
+    "confetti";
+
+
+  // ランダムな横位置
+
+  confetti.style.left=
+    Math.random()*100+
+    "%";
+
+
+  // ランダムな色
+
+  const colors=[
+    "#ff4f9a",
+    "#ff9800",
+    "#ffd700",
+    "#6ed6ff",
+    "#a66cff",
+    "#ff6b6b",
+    "#66d98a"
+  ];
+
+
+  confetti.style.background=
+    colors[
+      Math.floor(
+        Math.random()*
+        colors.length
+      )
+    ];
+
+
+  // ランダムなサイズ
+
+  const size=
+    Math.random()*7+6;
+
+
+  confetti.style.width=
+    size+"px";
+
+  confetti.style.height=
+    size*1.5+"px";
+
+
+  // ランダムな落下時間
+
+  confetti.style.animationDuration=
+    (Math.random()*3+3)+
+    "s";
+
+
+  // ランダムな開始遅延
+
+  confetti.style.animationDelay=
+    (Math.random()*2)+
+    "s";
+
+
+  container.appendChild(
+    confetti
+  );
+
+
+  // 画面下まで落ちたら削除
+
+  setTimeout(()=>{
+
+    confetti.remove();
+
+  },7000);
+
+}
+
+
+// =========================
+// 紙吹雪開始
+// =========================
+
+function startConfetti(){
+
+
+  // 既存の紙吹雪を停止
+
+  stopConfetti();
+
+
+  const container=
+    document
+      .getElementById(
+        "confettiContainer"
+      );
+
+
+  // 紙吹雪を表示
+
+  container.style.display=
+    "block";
+
+
+  // 最初にある程度生成
+
+  for(
+    let i=0;
+    i<30;
+    i++
+  ){
+
+    createConfetti();
+
+  }
+
+
+  // 0.15秒ごとに追加
+
+  confettiInterval=
+    setInterval(()=>{
+
+      createConfetti();
+
+    },150);
+
+}
+
+
+// =========================
+// 紙吹雪停止
+// =========================
+
+function stopConfetti(){
+
+
+  // タイマー停止
+
+  if(
+    confettiInterval
+  ){
+
+    clearInterval(
+      confettiInterval
+    );
+
+    confettiInterval=
+      null;
+
+  }
+
+
+  // 紙吹雪を非表示
+
+  const container=
+    document
+      .getElementById(
+        "confettiContainer"
+      );
+
+
+  if(container){
+
+    container.style.display=
+      "none";
+
+
+    // 既存の紙吹雪を全削除
+
+    container.innerHTML="";
+
+  }
 
 }
 
@@ -540,12 +964,22 @@ function showResult(){
 
 function restartGame(){
 
+
+  // 紙吹雪を停止
+
+  stopConfetti();
+
+
   // リザルト画面を非表示
-  document.getElementById("win").style.display="none";
+
+  document
+    .getElementById("win")
+    .style.display=
+      "none";
 
 
   // そのまま新しいゲームを開始
-  // タイトル画面には戻らない
+
   startGame();
 
 }
@@ -556,10 +990,11 @@ function restartGame(){
 // =========================
 //
 // ここで1回だけloopを開始。
-// RESTART時にloopを追加しないため、
-// 何回リスタートしても速度は変わらない。
+// RESTARTしてもloopは追加されないため、
+// ボタン速度は変わらない。
 
 requestAnimationFrame(loop);
+
 
 </script>
 
