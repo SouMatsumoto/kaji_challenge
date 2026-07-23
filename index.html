@@ -50,13 +50,6 @@ button{
   font-size:24px;
 }
 
-#msg{
-  position:fixed;
-  top:48px;
-  left:10px;
-  font-size:16px;
-}
-
 h1{
   font-size:40px;
   text-align:center;
@@ -120,10 +113,6 @@ h1{
 <div id="game">
 
   <div id="progress"></div>
-
-  <div id="msg">
-    順番:か→じ→あ→か→ね
-  </div>
 
 </div>
 
@@ -218,11 +207,17 @@ function startGame(){
 
   isCorrect=true;
 
-  startDiv=document.getElementById("start");
+  // スタート画面を非表示
+  document.getElementById("start").style.display="none";
 
-  startDiv.style.display="none";
+  // リザルト画面を非表示
+  document.getElementById("win").style.display="none";
 
+  // ゲーム画面を表示
   document.getElementById("game").style.display="block";
+
+  // 進行状況をリセット
+  document.getElementById("progress").textContent="";
 
   // 「か」「じ」「あ」「か」「ね」を生成
   seq.forEach(mk);
@@ -318,7 +313,7 @@ function click(b){
 function showResult(){
 
   // ゲーム画面を非表示
-  game.style.display="none";
+  document.getElementById("game").style.display="none";
 
 
   // 残っているボタンを削除
@@ -356,7 +351,7 @@ function showResult(){
   // =========================
 
   // 成功と同じピンク系背景
-  win.style.background=
+  document.getElementById("win").style.background=
     "linear-gradient(45deg,#ffd1ec,#d8f3ff)";
 
 
@@ -453,7 +448,7 @@ function showResult(){
 
 
   // リザルト画面を表示
-  win.style.display="flex";
+  document.getElementById("win").style.display="flex";
 
 }
 
@@ -464,9 +459,14 @@ function showResult(){
 
 function restartGame(){
 
-  // ページをリロードして
-  // 最初のスタート画面に戻る
-  location.reload();
+  // リザルト画面を非表示
+  document.getElementById("win").style.display="none";
+
+  // ゲーム画面を表示
+  document.getElementById("game").style.display="block";
+
+  // ゲームをそのまま再スタート
+  startGame();
 
 }
 
