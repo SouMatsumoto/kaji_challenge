@@ -138,10 +138,24 @@ h1{
 
 <script>
 
+// =========================
+// ゲーム設定
+// =========================
+
 // 正解の順番
 const seq=["か","じ","あ","か","ね"];
 
+// ボタンの移動速度
+// 元の速度の90%
+const SPEED_RATE=0.9;
+
+
+// =========================
+// ゲーム変数
+// =========================
+
 let idx=0;
+
 let start;
 
 let bts=[];
@@ -152,6 +166,9 @@ let pressed=[];
 // 正解だったかどうか
 let isCorrect=true;
 
+// ゲーム中かどうか
+let isPlaying=false;
+
 
 // =========================
 // ボタン作成
@@ -161,33 +178,42 @@ function mk(ch){
 
   let b=document.createElement("button");
 
-  // ボタンには「か」「じ」「あ」「か」「ね」だけを表示
+  // ボタンには
+  // 「か」「じ」「あ」「か」「ね」だけを表示
   b.dataset.k=ch;
   b.textContent=ch;
 
   // 初期位置
-  b.x=Math.random()*(innerWidth-100);
-  b.y=Math.random()*(innerHeight-100)+80;
+  b.x=
+    Math.random()*(innerWidth-100);
 
-  // 移動速度を元の90%にする
+  b.y=
+    Math.random()*(innerHeight-100)+80;
+
+
+  // 移動速度
+  // 元の90%に固定
   b.dx=
     (Math.random()*3.2+1.6)
-    *0.9
+    *SPEED_RATE
     *(Math.random()<.5?-1:1);
 
   b.dy=
     (Math.random()*3.2+1.6)
-    *0.9
+    *SPEED_RATE
     *(Math.random()<.5?-1:1);
+
 
   // ボタンそのものをタップ判定
   b.onclick=()=>{
     click(b);
   };
 
+
   document.body.appendChild(b);
 
   bts.push(b);
+
 }
 
 
@@ -197,8 +223,17 @@ function mk(ch){
 
 function startGame(){
 
-  start=Date.now();
+  // もし残っているボタンがあれば削除
+  bts.forEach(b=>{
 
+    if(b.isConnected){
+      b.remove();
+    }
+
+  });
+
+
+  // ゲーム状態を初期化
   idx=0;
 
   pressed=[];
@@ -207,62 +242,95 @@ function startGame(){
 
   isCorrect=true;
 
+  isPlaying=true;
+
+
+  // 開始時間を記録
+  start=Date.now();
+
+
   // スタート画面を非表示
   document.getElementById("start").style.display="none";
+
 
   // リザルト画面を非表示
   document.getElementById("win").style.display="none";
 
+
   // ゲーム画面を表示
   document.getElementById("game").style.display="block";
+
 
   // 進行状況をリセット
   document.getElementById("progress").textContent="";
 
+
   // 「か」「じ」「あ」「か」「ね」を生成
   seq.forEach(mk);
 
-  requestAnimationFrame(loop);
 }
 
 
 // =========================
 // ボタンを動かす
 // =========================
+//
+// 重要：
+// requestAnimationFrameはここでは呼ばない。
+// HTMLの最後で1回だけloopを開始する。
+// これによりRESTARTしても速度が加速しない。
 
 function loop(){
 
-  bts.forEach(b=>{
+  // ゲーム中のみボタンを動かす
+  if(isPlaying){
 
-    if(!b.isConnected)return;
+    bts.forEach(b=>{
 
-    // 移動
-    b.x+=b.dx;
-    b.y+=b.dy;
+      if(!b.isConnected)return;
 
-    // 左右の端で反射
-    if(
-      b.x<0||
-      b.x>innerWidth-90
-    ){
-      b.dx*=-1;
-    }
 
-    // 上下の端で反射
-    if(
-      b.y<70||
-      b.y>innerHeight-60
-    ){
-      b.dy*=-1;
-    }
+      // 移動
+      b.x+=b.dx;
 
-    // 位置を更新
-    b.style.left=b.x+"px";
-    b.style.top=b.y+"px";
+      b.y+=b.dy;
 
-  });
 
+      // 左右の端で反射
+      if(
+        b.x<0||
+        b.x>innerWidth-90
+      ){
+
+        b.dx*=-1;
+
+      }
+
+
+      // 上下の端で反射
+      if(
+        b.y<70||
+        b.y>innerHeight-60
+      ){
+
+        b.dy*=-1;
+
+      }
+
+
+      // 位置を更新
+      b.style.left=b.x+"px";
+
+      b.style.top=b.y+"px";
+
+    });
+
+  }
+
+
+  // 常に1本だけループを継続
   requestAnimationFrame(loop);
+
 }
 
 
@@ -272,8 +340,13 @@ function loop(){
 
 function click(b){
 
+  // ゲーム中でなければ何もしない
+  if(!isPlaying)return;
+
+
   // 押した文字を記録
   pressed.push(b.dataset.k);
+
 
   // 正しい順番か確認
   if(
@@ -285,12 +358,15 @@ function click(b){
 
   }
 
+
   // 次の判定位置へ進める
   idx++;
+
 
   // 押した順番を表示
   progress.textContent=
     pressed.join(" ");
+
 
   // 押したボタンを削除
   b.remove();
@@ -311,6 +387,10 @@ function click(b){
 // =========================
 
 function showResult(){
+
+  // ゲームを停止
+  isPlaying=false;
+
 
   // ゲーム画面を非表示
   document.getElementById("game").style.display="none";
@@ -350,12 +430,12 @@ function showResult(){
   // 成功・間違い共通
   // =========================
 
-  // 成功と同じピンク系背景
+  // ピンク系背景
   document.getElementById("win").style.background=
     "linear-gradient(45deg,#ffd1ec,#d8f3ff)";
 
 
-  // 成功と同じタイトル
+  // タイトル
   resultTitle.textContent=
     "🎉🎀 HAPPY BIRTHDAY!! 🎀🎉";
 
@@ -414,9 +494,10 @@ function showResult(){
   else{
 
     // 押した5文字をつなげて名前として表示
-    // 例：あ→ね→じ→か→か
-    //     ↓
-    //     あねじかか さん
+    // 例：
+    // あ→ね→じ→か→か
+    // ↓
+    // あねじかか さん
     resultName.textContent=
       pressed.join("")+
       " さん";
@@ -462,13 +543,23 @@ function restartGame(){
   // リザルト画面を非表示
   document.getElementById("win").style.display="none";
 
-  // ゲーム画面を表示
-  document.getElementById("game").style.display="block";
 
-  // ゲームをそのまま再スタート
+  // そのまま新しいゲームを開始
+  // タイトル画面には戻らない
   startGame();
 
 }
+
+
+// =========================
+// ゲームループ開始
+// =========================
+//
+// ここで1回だけloopを開始。
+// RESTART時にloopを追加しないため、
+// 何回リスタートしても速度は変わらない。
+
+requestAnimationFrame(loop);
 
 </script>
 
