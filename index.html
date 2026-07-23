@@ -90,11 +90,13 @@ h1{
 <!-- スタート画面 -->
 
 <div id="start">
+
   <h1>かじあかねチャレンジ</h1>
 
   <button style="position:static" onclick="startGame()">
     🚀 GAME START
   </button>
+
 </div>
 
 <!-- ゲーム画面 -->
@@ -140,7 +142,10 @@ let pressed=[];
 let isCorrect=true;
 
 
+// =========================
 // ボタン作成
+// =========================
+
 function mk(ch){
 
   let b=document.createElement("button");
@@ -175,7 +180,10 @@ function mk(ch){
 }
 
 
+// =========================
 // ゲーム開始
+// =========================
+
 function startGame(){
 
   start=Date.now();
@@ -201,7 +209,10 @@ function startGame(){
 }
 
 
+// =========================
 // ボタンを動かす
+// =========================
+
 function loop(){
 
   bts.forEach(b=>{
@@ -238,7 +249,10 @@ function loop(){
 }
 
 
+// =========================
 // ボタンを押したとき
+// =========================
+
 function click(b){
 
   // 押した文字を記録
@@ -249,7 +263,7 @@ function click(b){
     b.dataset.k!==seq[idx]
   ){
 
-    // 一度でも間違えたら失敗
+    // 一度でも間違えたら不正解
     isCorrect=false;
 
   }
@@ -275,7 +289,10 @@ function click(b){
 }
 
 
+// =========================
 // リザルト表示
+// =========================
+
 function showResult(){
 
   // ゲーム画面を非表示
@@ -313,27 +330,33 @@ function showResult(){
 
 
   // =========================
+  // 成功・間違い共通
+  // =========================
+
+  // 成功と同じピンク系背景
+  win.style.background=
+    "linear-gradient(45deg,#ffd1ec,#d8f3ff)";
+
+
+  // 成功と同じタイトル
+  resultTitle.textContent=
+    "🎉🎀 CONGRATULATIONS 🎀🎉";
+
+  resultTitle.style.fontSize="42px";
+
+  resultTitle.style.color="#ff4f9a";
+
+  resultTitle.style.animation=
+    "pop .8s infinite";
+
+
+  // =========================
   // 成功
   // =========================
 
   if(isCorrect){
 
-    // 成功時は明るいピンク系
-    win.style.background=
-      "linear-gradient(45deg,#ffd1ec,#d8f3ff)";
-
-
-    resultTitle.textContent=
-      "🎉🎀 CONGRATULATIONS 🎀🎉";
-
-    resultTitle.style.fontSize="42px";
-
-    resultTitle.style.color="#ff4f9a";
-
-    resultTitle.style.animation=
-      "pop .8s infinite";
-
-
+    // 正しい名前
     resultName.textContent=
       "🌸 かじあかね さん 🌸";
 
@@ -342,6 +365,7 @@ function showResult(){
     resultName.style.color="#ff4fa3";
 
 
+    // クリアタイム
     time.textContent=
       "🏆 Clear Time : "+
       clearTime+
@@ -355,6 +379,7 @@ function showResult(){
       "0 0 12px #fff";
 
 
+    // 成功メッセージ
     resultMessage.textContent=
       "💖 AMAZING!! 💖";
 
@@ -371,22 +396,6 @@ function showResult(){
 
   else{
 
-    // 間違い時は暗い青系
-    win.style.background=
-      "linear-gradient(135deg,#07152e,#102a4c,#07152e)";
-
-
-    resultTitle.textContent=
-      "WRONG NAME...";
-
-    resultTitle.style.fontSize="42px";
-
-    resultTitle.style.color="#8fb8e8";
-
-    resultTitle.style.animation=
-      "none";
-
-
     // 押した5文字をつなげて名前として表示
     // 例：あ→ね→じ→か→か
     //     ↓
@@ -397,25 +406,26 @@ function showResult(){
 
     resultName.style.fontSize="40px";
 
-    resultName.style.color="#ffffff";
+    resultName.style.color="#ff4fa3";
 
 
-    // 追加の正解表示はなし
+    // クリアタイムは表示しない
     time.textContent="";
 
     time.style.fontSize="20px";
 
-    time.style.color="#8fb8e8";
+    time.style.color="#ff9800";
 
     time.style.textShadow="none";
 
 
+    // 面白い感じのメッセージ
     resultMessage.textContent=
-      "😢 TRY AGAIN...";
+      "...??";
 
-    resultMessage.style.fontSize="32px";
+    resultMessage.style.fontSize="40px";
 
-    resultMessage.style.color="#6d91bd";
+    resultMessage.style.color="#ff4f9a";
 
   }
 
