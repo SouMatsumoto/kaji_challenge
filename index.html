@@ -145,7 +145,7 @@ function mk(ch){
 
   let b=document.createElement("button");
 
-  // ボタンには必ずこの5文字だけを表示
+  // ボタンには「か」「じ」「あ」「か」「ね」だけを表示
   b.dataset.k=ch;
   b.textContent=ch;
 
@@ -254,10 +254,10 @@ function click(b){
 
   }
 
-  // 次の正解位置へ進める
+  // 次の判定位置へ進める
   idx++;
 
-  // 進行状況を表示
+  // 押した順番を表示
   progress.textContent=
     pressed.join(" ");
 
@@ -318,6 +318,7 @@ function showResult(){
 
   if(isCorrect){
 
+    // 成功時は明るいピンク系
     win.style.background=
       "linear-gradient(45deg,#ffd1ec,#d8f3ff)";
 
@@ -370,7 +371,7 @@ function showResult(){
 
   else{
 
-    // 暗い青系の背景
+    // 間違い時は暗い青系
     win.style.background=
       "linear-gradient(135deg,#07152e,#102a4c,#07152e)";
 
@@ -386,11 +387,13 @@ function showResult(){
       "none";
 
 
-    // 実際に押した5文字を表示
+    // 押した5文字をつなげて名前として表示
+    // 例：あ→ね→じ→か→か
+    //     ↓
+    //     あねじかか さん
     resultName.textContent=
-      "「"+
-      pressed.join("→")+
-      "」";
+      pressed.join("")+
+      " さん";
 
     resultName.style.fontSize="40px";
 
