@@ -41,7 +41,6 @@ button{
   background:#fff7b8;
   border:3px solid #ff9ecf;
   box-shadow:0 4px 12px rgba(255,158,207,.5);
-  z-index:2;
 }
 
 #progress{
@@ -49,7 +48,6 @@ button{
   top:10px;
   left:10px;
   font-size:24px;
-  z-index:10;
 }
 
 #msg{
@@ -57,7 +55,6 @@ button{
   top:48px;
   left:10px;
   font-size:16px;
-  z-index:10;
 }
 
 h1{
@@ -69,17 +66,6 @@ h1{
   50%{
     transform:scale(1.08);
   }
-}
-
-/* 透明な120%タップ判定 */
-.hit-area{
-  position:absolute;
-  width:120%;
-  height:120%;
-  left:-10%;
-  top:-10%;
-  z-index:1;
-  cursor:pointer;
 }
 
 /* スマホ向け調整 */
@@ -110,6 +96,7 @@ h1{
 </div>
 
 <div id="win" style="display:none;background:linear-gradient(45deg,#ffd1ec,#d8f3ff)">
+
   <h1 style="font-size:42px;animation:pop .8s infinite">
     🎉🎀 CONGRATULATIONS 🎀🎉
   </h1>
@@ -123,9 +110,11 @@ h1{
   <h2 style="font-size:32px">
     💖 AMAZING!! 💖
   </h2>
+
 </div>
 
 <script>
+
 const seq=["か","じ","あ","か","ね"];
 
 const vars={
@@ -146,41 +135,25 @@ function alias(c){
 
 function mk(ch){
 
-  // 見た目のボタン
   let b=document.createElement("button");
 
   b.dataset.k=ch;
   b.textContent=alias(ch);
 
-  // ボタンの初期位置
+  // 初期位置
   b.x=Math.random()*(innerWidth-100);
   b.y=Math.random()*(innerHeight-100)+80;
 
-  // 移動速度を90%にする
+  // 移動速度を元の90%に変更
   b.dx=(Math.random()*3.2+1.6)*0.9*(Math.random()<.5?-1:1);
   b.dy=(Math.random()*3.2+1.6)*0.9*(Math.random()<.5?-1:1);
 
-  // 見た目のボタンをクリックした場合
+  // 見た目のボタンそのものをタップ判定
   b.onclick=()=>{
     click(b);
   };
 
-  // 透明な120%タップ判定エリア
-  let hit=document.createElement("div");
-  hit.className="hit-area";
-
-  // 見た目のボタンとは別にクリック判定を行う
-  hit.onclick=(e)=>{
-    e.stopPropagation();
-    click(b);
-  };
-
-  // bodyに直接追加
   document.body.appendChild(b);
-  document.body.appendChild(hit);
-
-  // ボタンと判定エリアをセットで管理
-  b.hitArea=hit;
 
   bts.push(b);
 }
@@ -205,28 +178,23 @@ function loop(){
 
     if(!b.isConnected)return;
 
-    // 移動
+    // ボタンを移動
     b.x+=b.dx;
     b.y+=b.dy;
 
-    // 画面端で反射
+    // 左右の端で反射
     if(b.x<0||b.x>innerWidth-90){
       b.dx*=-1;
     }
 
+    // 上下の端で反射
     if(b.y<70||b.y>innerHeight-60){
       b.dy*=-1;
     }
 
-    // 見た目のボタン位置
+    // ボタンの位置を更新
     b.style.left=b.x+"px";
     b.style.top=b.y+"px";
-
-    // 透明な120%判定エリアも同じ位置に移動
-    if(b.hitArea){
-      b.hitArea.style.left=(b.x-(b.offsetWidth*0.1))+"px";
-      b.hitArea.style.top=(b.y-(b.offsetHeight*0.1))+"px";
-    }
 
   });
 
@@ -235,22 +203,16 @@ function loop(){
 
 function click(b){
 
-  // 正しい順番かチェック
+  // 正しい順番の場合
   if(b.dataset.k===seq[idx]){
 
-    // 透明判定エリアを削除
-    if(b.hitArea){
-      b.hitArea.remove();
-    }
-
-    // ボタンを削除
     b.remove();
 
     idx++;
 
     progress.textContent=seq.slice(0,idx).join(" ");
 
-    // 全部クリア
+    // すべて正解した場合
     if(idx===seq.length){
 
       game.style.display="none";
@@ -264,11 +226,13 @@ function click(b){
 
   }else{
 
+    // 順番を間違えた場合
     alert("❌ 順番が違います！");
     location.reload();
 
   }
 }
+
 </script>
 
 </body>
